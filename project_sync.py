@@ -9,6 +9,39 @@ from project import EventLog
 
 
 # 학생 구현: 필요한 동기 함수는 자유롭게 추가합니다.
+def observe(name, port, item, record):
+    """상태를 한 번 조회한다. 실패해도 마지막 정상 값과 시각은 보존한다."""
+    try:
+        reply = request_sync(port, "status", timeout=0.5)
+    except (TimeoutError, ConnectionError, ValueError) as error:
+        item["error"] = type(error).__name__
+        record("observation_error", name, error=item["error"])
+    else:
+        event = record("observation", name, output=reply["output"], busy=reply["busy"])
+        item.update(last_output=reply["output"], last_ok=event["elapsed"], error=None)
+
+
+def observe_all(ports, observed, record):
+    for name, port in zip(("A", "B"), ports):
+        observe(name, port, observed[name], record)
+
+
+def job(name, port, command, record):
+    """명령 하나의 요청·접수·완료 확인. 오류도 {ok: False, error: ...}로 반환."""
+    target = 1 if command == "on" else 0
+    record("command_request", name, command=command)
+    try:
+        request_sync(port, command, timeout=0.5)
+        record("accepted", name, command=command)
+        reply = wait_output_sync(port, target=target)
+    except (TimeoutError, ConnectionError, ValueError) as error:
+        failure = type(error).__name__
+        record("job_error", name, command=command, error=failure)
+        return {"ok": False, "error": failure}
+    record("completed", name, command=command, output=reply["output"])
+    return {"ok": True, "output": reply["output"]}
+
+
 def run(ports=(PORT_A, PORT_B), record=None):
     """TASKS.md의 동기 과제를 구현하고 실제 요청·관측·완료 시각을 기록하세요."""
     # TODO: 동기 요청과 완료 대기로 A on → B on → A off → B off를 구성.
