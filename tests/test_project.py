@@ -109,6 +109,23 @@ class WatchTests(DeviceCase):
             await task
 
 
+    async def test_cancel_during_request_propagates(self):
+        self.a.set_mode("silent")
+        task = self.start()
+        await asyncio.sleep(0.1)
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await asyncio.wait_for(task, 2)
+        self.assertFalse(self.rec.of("observation_error"))
+
+    async def test_rejected_status_keeps_watching(self):
+        with mock.patch("project.request_async", side_effect=ValueError("거부")):
+            task = self.start()
+            await wait_until(lambda: len(self.rec.of("observation_error")) >= 2)
+        self.assertEqual(self.item["error"], "ValueError")
+        self.assertFalse(task.done())
+
+
 class WorkTests(DeviceCase):
     def kinds(self):
         return [e["type"] for e in self.rec.events]
