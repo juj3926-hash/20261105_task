@@ -6,10 +6,16 @@ from device_client import PORT_A, PORT_B, request_async, wait_output_async
 # 학생 구현: 아래 watch, work, stage, sequence 네 함수
 async def watch(name, port, item, record):
     """반복 조회. 성공 시 마지막 값·시각 갱신, 오류 시 마지막 정상 값 보존."""
-    # TODO: status 조회(timeout=0.5), observation 또는 observation_error 기록.
-    # record가 반환한 event["elapsed"]를 last_ok로 사용한다.
-    # 오류를 장치별로 처리하고 await asyncio.sleep(0.2) 후 다시 조회한다.
-    raise NotImplementedError("watch: 장치별 상태 감시를 작성하세요.")
+    while True:
+        try:
+            reply = await request_async(port, "status", timeout=0.5)
+        except (TimeoutError, ConnectionError, ValueError) as error:
+            item["error"] = type(error).__name__
+            record("observation_error", name, error=item["error"])
+        else:
+            event = record("observation", name, output=reply["output"], busy=reply["busy"])
+            item.update(last_output=reply["output"], last_ok=event["elapsed"], error=None)
+        await asyncio.sleep(0.2)
 
 
 async def work(name, port, command, record):
