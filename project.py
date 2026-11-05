@@ -36,15 +36,23 @@ async def work(name, port, command, record):
 
 async def stage(command, ports, record):
     """A/B work를 함께 시작하고 둘 다 결과를 낼 때까지 기다린다."""
-    # TODO: create_task 또는 gather로 동시 시작.
-    # {command, ok, results:{A:결과, B:결과}}를 stage_result에 기록하고 반환.
-    raise NotImplementedError("stage: 두 장치의 현재 작업 결과를 모으세요.")
+    names = ("A", "B")
+    outcomes = await asyncio.gather(*(work(name, port, command, record)
+                                      for name, port in zip(names, ports)))
+    results = dict(zip(names, outcomes))
+    ok = all(result["ok"] for result in outcomes)
+    record("stage_result", command=command, ok=ok, results=results)
+    return {"command": command, "ok": ok, "results": results}
 
 
 async def sequence(ports, record):
     """on 단계 모두 성공한 경우에만 off 단계. 실패한 작업은 다시 실행하지 않는다."""
-    # TODO: on stage 결과를 목록에 보존. 성공할 때만 off stage 결과 추가.
-    raise NotImplementedError("sequence: 두 단계 사이의 진행 조건을 작성하세요.")
+    stages = [await stage("on", ports, record)]
+    if stages[0]["ok"]:
+        stages.append(await stage("off", ports, record))
+    else:
+        record("sequence_stopped", reason="on stage failed")
+    return stages
 
 
 async def run(ports=(PORT_A, PORT_B), seconds=None, record=None):

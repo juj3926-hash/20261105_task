@@ -159,5 +159,62 @@ class WorkTests(DeviceCase):
         self.assertFalse(self.rec.of("job_error"))
 
 
+class StageTests(DeviceCase):
+    @property
+    def ports(self):
+        return (self.port_a, self.port_b)
+
+    def index(self, kind, **fields):
+        return [i for i, e in enumerate(self.rec.events) if e["type"] == kind
+                and all(e.get(k) == v for k, v in fields.items())]
+
+    async def test_stage_starts_both_before_completion(self):
+        result = await project.stage("on", self.ports, self.rec)
+        self.assertEqual(result, {"command": "on", "ok": True, "results": {
+            "A": {"ok": True, "output": 1}, "B": {"ok": True, "output": 1}}})
+        self.assertEqual(len(self.index("command_request")), 2)
+        self.assertLess(max(self.index("command_request")), min(self.index("completed")))
+        event = self.rec.of("stage_result")[0]
+        self.assertEqual((event["command"], event["ok"], event["results"]),
+                         ("on", True, result["results"]))
+
+    async def test_stage_keeps_other_result(self):
+        self.a.set_mode("silent")
+        result = await project.stage("on", self.ports, self.rec)
+        self.assertFalse(result["ok"])
+        self.assertFalse(result["results"]["A"]["ok"])
+        self.assertEqual(result["results"]["B"], {"ok": True, "output": 1})
+
+    async def test_sequence_normal(self):
+        stages = await project.sequence(self.ports, self.rec)
+        self.assertEqual([s["command"] for s in stages], ["on", "off"])
+        self.assertTrue(all(s["ok"] for s in stages))
+        self.assertLess(max(self.index("completed", command="on")),
+                        min(self.index("command_request", command="off")))
+        self.assertFalse(self.rec.of("sequence_stopped"))
+
+    async def test_sequence_stops_after_on_failure(self):
+        self.a.set_mode("silent")
+        stages = await project.sequence(self.ports, self.rec)
+        self.assertEqual([s["command"] for s in stages], ["on"])
+        self.assertEqual(self.rec.of("sequence_stopped")[0]["reason"], "on stage failed")
+        self.assertFalse(self.index("command_request", command="off"))
+
+    async def test_recovery_adds_no_command(self):
+        self.a.set_mode("silent")
+        task = asyncio.create_task(project.run(self.ports, seconds=2.5, record=self.rec))
+        await wait_until(lambda: self.rec.of("stage_result"))
+        recovered_at = len(self.rec.events)
+        self.a.set_mode("normal")
+        result = await task
+        after = self.rec.events[recovered_at:]
+        self.assertTrue([e for e in after if e["type"] == "observation" and e["device"] == "A"])
+        self.assertFalse(result["stages"][0]["results"]["A"]["ok"])
+        self.assertEqual(len(self.rec.of("command_request", "A")), 1)
+        self.assertFalse([h for h in self.a.history if h[0] == "command"])
+        self.assertEqual(result["observed"]["A"]["last_output"], 0)
+        self.assertIsNone(result["observed"]["A"]["error"])
+
+
 if __name__ == "__main__":
     unittest.main()
