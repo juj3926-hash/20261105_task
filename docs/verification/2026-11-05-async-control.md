@@ -1,9 +1,10 @@
 # 과제 1 검증 기록
 
 - 일시: 2026-11-05, Python 3.14.6, Windows 11
-- 방법: `teacher_demo.py --no-browser`를 띄우고 `/api/reset`, `/api/mode`로 버튼과 같은 조작을 한 뒤 `python project.py`를 실행했다.
+- 방법: `teacher_demo.py --no-browser`를 띄우고 `/api/reset`, `/api/mode`로 버튼과 같은 조작을 한 뒤 `python project.py`를 실행했다. 정상은 `--seconds 12`, 실패·복구는 `--seconds 10`, 종료는 옵션 없이 실행했다.
+- 재현: 저장소 루트에서 `python docs/verification/run_async_scenarios.py`, 로그 요약은 `python docs/verification/summarize_log.py <로그 경로>`
 - 아래 "AI 실행 증거"는 AI가 스크립트로 실행하고 로그를 대조한 결과다. 학생이 직접 확인한 결과가 아니다.
-- 단위 테스트: `python -m unittest tests.test_project` 17개 통과
+- 단위 테스트: `python -m unittest tests.test_project` 19개 통과
 
 ## AI 실행 증거
 
@@ -34,11 +35,11 @@
 
 ### 복구: 통과
 
-같은 로그. `stage_result` 약 1초 뒤 복구했다.
+같은 로그. `stage_result` 약 1초 뒤 복구했다. 복구 시점은 로그에 기록되지 않으며, 재현 스크립트의 대기 시간이 출처다.
 
 - A `observation_error` 8건, 마지막 5.5282초
 - A 첫 `observation` 5.7334초, 출력 0 (spec의 예상과 일치)
-- 복구 뒤 `command_request` 없음. 결과의 과거 실패 유지는 단위 테스트 `test_recovery_adds_no_command`로 확인했다.
+- 복구 뒤 `command_request` 없음. 과거 실패 유지는 이 로그의 `run_end.stages`와 단위 테스트 `test_recovery_adds_no_command`로 확인했다.
 - 이 로그의 `run_end`까지 A 조회가 이어졌다.
 
 ### 종료: 일부 확인
@@ -61,4 +62,4 @@
 
 ## 참고
 
-이 Windows 환경은 닫힌 포트의 연결 거부에 2.06초가 걸렸다. 0.5초 제한의 요청에서는 `ConnectionError`보다 `TimeoutError`가 먼저 나온다.
+이 Windows 환경은 닫힌 포트의 연결 거부에 2.06초가 걸렸다(별도 측정, 로그에는 없음). 0.5초 제한의 요청에서는 `ConnectionError`보다 `TimeoutError`가 먼저 나온다.
