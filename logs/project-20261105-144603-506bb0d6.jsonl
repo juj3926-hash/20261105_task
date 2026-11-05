@@ -1,0 +1,109 @@
+{"elapsed": 0.0008, "type": "run_start", "device": null, "ports": [9101, 9102], "seconds": null}
+{"elapsed": 0.0014, "type": "command_request", "device": "A", "command": "on"}
+{"elapsed": 0.0015, "type": "command_request", "device": "B", "command": "on"}
+{"elapsed": 0.0024, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 0.0027, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 0.003, "type": "accepted", "device": "B", "command": "on"}
+{"elapsed": 0.0034, "type": "accepted", "device": "A", "command": "on"}
+{"elapsed": 0.2066, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 0.2068, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 0.4244, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 0.4247, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 0.6394, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 0.6396, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 0.8565, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 0.8571, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 1.0739, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 1.074, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 1.2906, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 1.2907, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 1.5078, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 1.5081, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 1.7248, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 1.7251, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 1.941, "type": "observation", "device": "A", "output": 0, "busy": true}
+{"elapsed": 1.9415, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 2.0672, "type": "completed", "device": "A", "command": "on", "output": 1}
+{"elapsed": 2.1458, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 2.1462, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 2.3478, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 2.3479, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 2.552, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 2.5522, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 2.7558, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 2.7562, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 2.9728, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 2.973, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 3.1773, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 3.1775, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 3.3812, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 3.3814, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 3.5988, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 3.5989, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 3.8015, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 3.8037, "type": "observation", "device": "B", "output": 0, "busy": true}
+{"elapsed": 4.0066, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 4.0071, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 4.0394, "type": "completed", "device": "B", "command": "on", "output": 1}
+{"elapsed": 4.0396, "type": "stage_result", "device": null, "command": "on", "ok": true, "results": {"A": {"ok": true, "output": 1}, "B": {"ok": true, "output": 1}}}
+{"elapsed": 4.0399, "type": "command_request", "device": "A", "command": "off"}
+{"elapsed": 4.0407, "type": "command_request", "device": "B", "command": "off"}
+{"elapsed": 4.0421, "type": "accepted", "device": "A", "command": "off"}
+{"elapsed": 4.043, "type": "accepted", "device": "B", "command": "off"}
+{"elapsed": 4.2246, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 4.2265, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 4.4441, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 4.4443, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 4.6594, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 4.6604, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 4.8628, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 4.863, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 5.0777, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 5.0779, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 5.2803, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 5.2805, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 5.4821, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 5.4825, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 5.6865, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 5.6868, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 5.9029, "type": "observation", "device": "A", "output": 1, "busy": true}
+{"elapsed": 5.9031, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 6.1251, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 6.1253, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 6.1254, "type": "completed", "device": "A", "command": "off", "output": 0}
+{"elapsed": 6.3403, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 6.3404, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 6.5441, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 6.5442, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 6.7478, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 6.748, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 6.9527, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 6.9527, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 7.1699, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 7.1701, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 7.3729, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 7.3731, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 7.5905, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 7.5908, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 7.8079, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 7.808, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.0122, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.0126, "type": "observation", "device": "B", "output": 1, "busy": true}
+{"elapsed": 8.0884, "type": "completed", "device": "B", "command": "off", "output": 0}
+{"elapsed": 8.0885, "type": "stage_result", "device": null, "command": "off", "ok": true, "results": {"A": {"ok": true, "output": 0}, "B": {"ok": true, "output": 0}}}
+{"elapsed": 8.228, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.2281, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 8.4342, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 8.4344, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.6369, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 8.6372, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.855, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.8552, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 9.0726, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 9.0728, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 9.279, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 9.2792, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 9.4955, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 9.4966, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 9.6975, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 9.6979, "type": "observation", "device": "B", "output": 0, "busy": false}
