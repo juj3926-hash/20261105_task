@@ -1,5 +1,6 @@
 """과제 2: 단일 실행 흐름의 동기 제어와 비동기 결과 비교."""
 from datetime import datetime
+import io
 from pathlib import Path
 import time
 from uuid import uuid4
@@ -42,14 +43,30 @@ def job(name, port, command, record):
     return {"ok": True, "output": reply["output"]}
 
 
+def sync_stage(command, ports, observed, record):
+    """A, B 순서로 작업하고 각 작업 뒤 상태를 조회한다. 한쪽 실패에도 다른 쪽을 시도한다."""
+    results = {}
+    for name, port in zip(("A", "B"), ports):
+        results[name] = job(name, port, command, record)
+        observe_all(ports, observed, record)
+    ok = all(result["ok"] for result in results.values())
+    record("stage_result", command=command, ok=ok, results=results)
+    return {"command": command, "ok": ok, "results": results}
+
+
 def run(ports=(PORT_A, PORT_B), record=None):
-    """TASKS.md의 동기 과제를 구현하고 실제 요청·관측·완료 시각을 기록하세요."""
-    # TODO: 동기 요청과 완료 대기로 A on → B on → A off → B off를 구성.
-    # on 단계 실패 시 off로 진행하지 않음. 통신 실패를 장치별 결과로 구분.
-    # 제어 작업 사이의 상태 조회와 작업 종료 후 감시를 구현.
-    # 조회할 때만 관측 기록을 남기고, 기다리는 동안의 감시 공백을 비교.
-    # asyncio·추가 스레드·프로세스로 제어 작업을 나누지 않습니다.
-    raise NotImplementedError("run: 동기 제어와 관측을 구현하세요.")
+    """단일 흐름으로 on → off를 수행하고 Ctrl+C까지 조회를 이어간다."""
+    if record is None:
+        record = EventLog(io.StringIO())
+    observed = {name: {"last_output": None, "last_ok": None, "error": None} for name in ("A", "B")}
+    observe_all(ports, observed, record)
+    if sync_stage("on", ports, observed, record)["ok"]:
+        sync_stage("off", ports, observed, record)
+    else:
+        record("sequence_stopped", reason="on stage failed")
+    while True:
+        observe_all(ports, observed, record)
+        time.sleep(0.2)
 
 
 # 제공된 로그·실행 틀. EventLog는 project.py에서 재사용하며 비동기 제어를 실행하지 않습니다.
