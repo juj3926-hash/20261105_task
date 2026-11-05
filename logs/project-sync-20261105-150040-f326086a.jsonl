@@ -1,0 +1,34 @@
+{"elapsed": 0.0, "type": "run_start", "device": null, "ports": [9101, 9102], "mode": "sync"}
+{"elapsed": 0.5062, "type": "observation_error", "device": "A", "error": "TimeoutError"}
+{"elapsed": 0.5081, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 0.5082, "type": "command_request", "device": "A", "command": "on"}
+{"elapsed": 1.0211, "type": "job_error", "device": "A", "command": "on", "error": "TimeoutError"}
+{"elapsed": 1.5343, "type": "observation_error", "device": "A", "error": "TimeoutError"}
+{"elapsed": 1.5502, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 1.5508, "type": "command_request", "device": "B", "command": "on"}
+{"elapsed": 1.5655, "type": "accepted", "device": "B", "command": "on"}
+{"elapsed": 5.6347, "type": "completed", "device": "B", "command": "on", "output": 1}
+{"elapsed": 6.1418, "type": "observation_error", "device": "A", "error": "TimeoutError"}
+{"elapsed": 6.1436, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 6.1437, "type": "stage_result", "device": null, "command": "on", "ok": false, "results": {"A": {"ok": false, "error": "TimeoutError"}, "B": {"ok": true, "output": 1}}}
+{"elapsed": 6.1437, "type": "sequence_stopped", "device": null, "reason": "on stage failed"}
+{"elapsed": 6.6696, "type": "observation_error", "device": "A", "error": "TimeoutError"}
+{"elapsed": 6.6849, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 7.3886, "type": "observation_error", "device": "A", "error": "TimeoutError"}
+{"elapsed": 7.3895, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 7.5934, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 7.607, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 7.8249, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 7.8268, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 8.0436, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.0448, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 8.2618, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.278, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 8.4805, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.495, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 8.6969, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.6975, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 8.8989, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.9165, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 9.134, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 9.1347, "type": "observation", "device": "B", "output": 1, "busy": false}

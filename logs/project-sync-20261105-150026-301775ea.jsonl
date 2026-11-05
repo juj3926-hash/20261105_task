@@ -1,0 +1,45 @@
+{"elapsed": 0.0, "type": "run_start", "device": null, "ports": [9101, 9102], "mode": "sync"}
+{"elapsed": 0.0174, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 0.0332, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 0.0333, "type": "command_request", "device": "A", "command": "on"}
+{"elapsed": 0.0487, "type": "accepted", "device": "A", "command": "on"}
+{"elapsed": 2.1377, "type": "completed", "device": "A", "command": "on", "output": 1}
+{"elapsed": 2.1533, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 2.169, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 2.1692, "type": "command_request", "device": "B", "command": "on"}
+{"elapsed": 2.1701, "type": "accepted", "device": "B", "command": "on"}
+{"elapsed": 6.1849, "type": "completed", "device": "B", "command": "on", "output": 1}
+{"elapsed": 6.1861, "type": "observation", "device": "A", "output": 1, "busy": false}
+{"elapsed": 6.1874, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 6.1875, "type": "stage_result", "device": null, "command": "on", "ok": true, "results": {"A": {"ok": true, "output": 1}, "B": {"ok": true, "output": 1}}}
+{"elapsed": 6.1875, "type": "command_request", "device": "A", "command": "off"}
+{"elapsed": 6.209, "type": "accepted", "device": "A", "command": "off"}
+{"elapsed": 8.2515, "type": "completed", "device": "A", "command": "off", "output": 0}
+{"elapsed": 8.2523, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 8.2642, "type": "observation", "device": "B", "output": 1, "busy": false}
+{"elapsed": 8.2643, "type": "command_request", "device": "B", "command": "off"}
+{"elapsed": 8.2661, "type": "accepted", "device": "B", "command": "off"}
+{"elapsed": 12.2851, "type": "completed", "device": "B", "command": "off", "output": 0}
+{"elapsed": 12.2995, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 12.3003, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 12.3004, "type": "stage_result", "device": null, "command": "off", "ok": true, "results": {"A": {"ok": true, "output": 0}, "B": {"ok": true, "output": 0}}}
+{"elapsed": 12.3011, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 12.3016, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 12.5179, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 12.5341, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 12.7362, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 12.7512, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 12.9535, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 12.9687, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 13.1718, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 13.173, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 13.3749, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 13.3901, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 13.6086, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 13.6237, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 13.8259, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 13.8392, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 14.0558, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 14.057, "type": "observation", "device": "B", "output": 0, "busy": false}
+{"elapsed": 14.2589, "type": "observation", "device": "A", "output": 0, "busy": false}
+{"elapsed": 14.2618, "type": "observation", "device": "B", "output": 0, "busy": false}
