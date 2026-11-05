@@ -20,9 +20,18 @@ async def watch(name, port, item, record):
 
 async def work(name, port, command, record):
     """명령 하나의 요청·접수·완료 확인. 오류도 {ok: False, error: ...}로 반환."""
-    # TODO: command_request → 요청(timeout=0.5) → accepted → 목표 출력 확인 → completed.
-    # on 목표는 1, off 목표는 0. 실패는 job_error에 기록하고 다른 작업에 전파하지 않는다.
-    raise NotImplementedError("work: 접수와 실제 출력 확인을 구별하세요.")
+    target = 1 if command == "on" else 0
+    record("command_request", name, command=command)
+    try:
+        await request_async(port, command, timeout=0.5)
+        record("accepted", name, command=command)
+        reply = await wait_output_async(port, target=target)
+    except (TimeoutError, ConnectionError, ValueError) as error:
+        failure = type(error).__name__
+        record("job_error", name, command=command, error=failure)
+        return {"ok": False, "error": failure}
+    record("completed", name, command=command, output=reply["output"])
+    return {"ok": True, "output": reply["output"]}
 
 
 async def stage(command, ports, record):

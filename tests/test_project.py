@@ -109,5 +109,55 @@ class WatchTests(DeviceCase):
             await task
 
 
+class WorkTests(DeviceCase):
+    def kinds(self):
+        return [e["type"] for e in self.rec.events]
+
+    async def test_on_records_in_order(self):
+        result = await project.work("A", self.port_a, "on", self.rec)
+        self.assertEqual(result, {"ok": True, "output": 1})
+        self.assertEqual(self.kinds(), ["command_request", "accepted", "completed"])
+        self.assertEqual(self.rec.of("completed")[0]["output"], 1)
+
+    async def test_off_targets_zero(self):
+        await project.work("A", self.port_a, "on", self.rec)
+        result = await project.work("A", self.port_a, "off", self.rec)
+        self.assertEqual(result, {"ok": True, "output": 0})
+
+    async def test_silent_fails_without_accept(self):
+        self.a.set_mode("silent")
+        result = await project.work("A", self.port_a, "on", self.rec)
+        self.assertEqual(result, {"ok": False, "error": "TimeoutError"})
+        self.assertEqual(self.rec.of("job_error")[0]["command"], "on")
+        self.assertFalse(self.rec.of("accepted"))
+
+    async def test_silent_after_accept_fails_job(self):
+        task = asyncio.create_task(project.work("B", self.port_b, "on", self.rec))
+        await wait_until(lambda: self.rec.of("accepted"))
+        self.b.set_mode("silent")
+        result = await task
+        self.assertFalse(result["ok"])
+        self.assertTrue(self.rec.of("job_error"))
+        self.assertFalse(self.rec.of("completed"))
+
+    async def test_closed_port_is_failure(self):
+        result = await project.work("A", closed_port(), "on", self.rec)
+        self.assertFalse(result["ok"])
+        self.assertIn(result["error"], CLOSED_PORT_ERRORS)
+
+    async def test_rejected_request_is_failure(self):
+        with mock.patch("project.request_async", side_effect=ValueError("거부")):
+            result = await project.work("A", self.port_a, "on", self.rec)
+        self.assertEqual(result, {"ok": False, "error": "ValueError"})
+
+    async def test_cancel_not_converted(self):
+        task = asyncio.create_task(project.work("B", self.port_b, "on", self.rec))
+        await wait_until(lambda: self.rec.of("accepted"))
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        self.assertFalse(self.rec.of("job_error"))
+
+
 if __name__ == "__main__":
     unittest.main()
