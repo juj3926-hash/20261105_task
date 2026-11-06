@@ -4,9 +4,9 @@ import sys
 import time
 
 from pymodbus.client import AsyncModbusSerialClient
-from pymodbus.exceptions import ConnectionException, ModbusException, ModbusIOException
+from pymodbus.exceptions import ConnectionException, ModbusException
 
-from plc_common import (ADDRESS, HELP, EventLog, KeyReader, State, client_options, describe,
+from plc_common import (ADDRESS, HELP, EventLog, KeyReader, State, check_reply, client_options, describe,
                         open_log, parse_args)
 
 FAILURES = (ModbusException, OSError, asyncio.TimeoutError)
@@ -14,8 +14,17 @@ KEY_INTERVAL = 0.05
 WAIT_NOTICE = 0.5
 
 
+def poll_stopped(client):
+    """pymodbus 3.16.1 내부 확인. Windows에서 포트가 끊기면 poll Task만 끝나고 connected는 True로 남는다."""
+    transport = getattr(getattr(client, "ctx", None), "transport", None)
+    task = getattr(transport, "poll_task", None)
+    return task is not None and task.done()
+
+
 async def exchange(client, request, busy):
     """요청 하나를 수행한다. 이 함수를 부르는 곳은 통신 Task 하나뿐이다."""
+    if poll_stopped(client):
+        client.close()
     if not client.connected and not await client.connect():
         raise ConnectionException("연결 실패")
     busy["since"] = time.monotonic()
@@ -23,9 +32,7 @@ async def exchange(client, request, busy):
         reply = await request()
     finally:
         busy["since"] = None
-    if reply.isError():
-        raise ModbusIOException("오류 응답")
-    return reply
+    return check_reply(reply)
 
 
 async def write_once(client, state, value, record, busy):
@@ -34,9 +41,9 @@ async def write_once(client, state, value, record, busy):
     try:
         await exchange(client, lambda: client.write_register(ADDRESS, value, device_id=unit), busy)
     except FAILURES as error:
-        state.write_done(value, False, describe(error), record)
+        state.write_done(value, unit, False, describe(error), record)
     else:
-        state.write_done(value, True, None, record)
+        state.write_done(value, unit, True, None, record)
 
 
 async def read_once(client, state, record, busy):
@@ -46,9 +53,9 @@ async def read_once(client, state, record, busy):
         reply = await exchange(
             client, lambda: client.read_holding_registers(ADDRESS, count=1, device_id=unit), busy)
     except FAILURES as error:
-        state.read_failed(describe(error), record)
+        state.read_failed(describe(error), unit, record)
     else:
-        state.read_ok(reply.registers[0], record)
+        state.read_ok(reply.registers[0], unit, record)
 
 
 async def communicate(client, state, period, record, busy):

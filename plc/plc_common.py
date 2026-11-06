@@ -7,9 +7,18 @@ from pathlib import Path
 import time
 from uuid import uuid4
 
+from pymodbus.exceptions import ModbusException, ModbusIOException
+
 LOG_FOLDER = Path(__file__).resolve().parent / "logs"
 ADDRESS = 0  # D01000 기준 요청 주소. 1000이나 40001이 아니다.
 HELP = "명령: write <0~65535>, unit <1~247>, status, quit"
+
+
+def unit_number(text):
+    unit = _integer(text, 1, 247)
+    if unit is None:
+        raise argparse.ArgumentTypeError("국번은 1~247 정수")
+    return unit
 
 
 def parse_args(argv=None):
@@ -19,7 +28,7 @@ def parse_args(argv=None):
     parser.add_argument("--parity", required=True, choices=("N", "E", "O"))
     parser.add_argument("--stopbits", required=True, type=int, choices=(1, 2))
     parser.add_argument("--baudrate", type=int, default=9600)
-    parser.add_argument("--unit", type=int, default=1, help="요청 대상 국번")
+    parser.add_argument("--unit", type=unit_number, default=1, help="요청 대상 국번 (1~247)")
     parser.add_argument("--timeout", type=float, default=2.0)
     parser.add_argument("--retries", type=int, default=0)
     parser.add_argument("--period", type=float, default=1.0, help="감시 주기(초)")
@@ -55,7 +64,24 @@ def parse_command(text):
     return ("reject", HELP)
 
 
+class ErrorReply(ModbusException):
+    """PLC가 응답했지만 요청을 거절한 경우. 무응답과 구분한다."""
+    def __init__(self, code):
+        super().__init__(f"오류 응답 {code}")
+        self.code = code
+
+
+def check_reply(reply):
+    if reply.isError():
+        raise ErrorReply(getattr(reply, "exception_code", None))
+    return reply
+
+
 def describe(error):
+    if isinstance(error, ErrorReply):
+        return f"ErrorReply({error.code})"
+    if isinstance(error, ModbusIOException):
+        return "NoResponse"  # retries 0의 시간 초과는 이 예외로 온다.
     return type(error).__name__
 
 
@@ -85,8 +111,8 @@ class State:
             record("input_rejected", text=text, reason=command[1])
         return command[0] == "quit"
 
-    def read_ok(self, value, record):
-        event = record("observation", value=value, unit=self.unit)
+    def read_ok(self, value, unit, record):
+        event = record("observation", value=value, unit=unit)
         self.value, self.observed_at, self.error = value, event["elapsed"], None
         if self.expected is not None:
             if value == self.expected:
@@ -95,12 +121,12 @@ class State:
                 record("write_mismatch", value=self.expected, observed=value)
             self.expected = None
 
-    def read_failed(self, error, record):
+    def read_failed(self, error, unit, record):
         self.error = error
-        record("observation_error", unit=self.unit, error=error)
+        record("observation_error", unit=unit, error=error)
 
-    def write_done(self, value, ok, error, record):
-        record("write_result", value=value, unit=self.unit, ok=ok, error=error)
+    def write_done(self, value, unit, ok, error, record):
+        record("write_result", value=value, unit=unit, ok=ok, error=error)
         if ok:
             self.expected = value
 

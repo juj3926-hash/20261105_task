@@ -1,6 +1,7 @@
 """PLC 프로그램 테스트. 실제 COM 포트를 열지 않고 가짜 클라이언트와 가짜 키를 쓴다."""
 import asyncio
 from pathlib import Path
+from types import SimpleNamespace
 import sys
 import time
 import unittest
@@ -72,39 +73,39 @@ class StateTests(unittest.TestCase):
         self.rec = Rec()
 
     def test_never_read_shows_unobserved(self):
-        self.state.read_failed("ModbusIOException", self.rec)
+        self.state.read_failed("ModbusIOException", 1, self.rec)
         self.assertIsNone(self.state.value)
         self.assertIn("미관측", self.state.summary())
 
     def test_failure_keeps_last_good(self):
-        self.state.read_ok(100, self.rec)
+        self.state.read_ok(100, 1, self.rec)
         seen = self.state.observed_at
-        self.state.read_failed("ModbusIOException", self.rec)
+        self.state.read_failed("ModbusIOException", 1, self.rec)
         self.assertEqual((self.state.value, self.state.observed_at), (100, seen))
         self.assertEqual(self.state.error, "ModbusIOException")
         self.assertIn("ModbusIOException", self.state.summary())
         self.assertIn("100", self.state.summary())
 
     def test_success_clears_error(self):
-        self.state.read_failed("ModbusIOException", self.rec)
-        self.state.read_ok(5, self.rec)
+        self.state.read_failed("ModbusIOException", 1, self.rec)
+        self.state.read_ok(5, 1, self.rec)
         self.assertIsNone(self.state.error)
 
     def test_write_confirmed_once(self):
-        self.state.write_done(100, True, None, self.rec)
-        self.state.read_ok(100, self.rec)
-        self.state.read_ok(100, self.rec)
+        self.state.write_done(100, 1, True, None, self.rec)
+        self.state.read_ok(100, 1, self.rec)
+        self.state.read_ok(100, 1, self.rec)
         self.assertEqual(len(self.rec.of("write_confirmed")), 1)
 
     def test_write_mismatch(self):
-        self.state.write_done(100, True, None, self.rec)
-        self.state.read_ok(50, self.rec)
+        self.state.write_done(100, 1, True, None, self.rec)
+        self.state.read_ok(50, 1, self.rec)
         self.assertEqual(self.rec.of("write_mismatch")[0]["observed"], 50)
         self.assertFalse(self.rec.of("write_confirmed"))
 
     def test_failed_write_is_not_confirmed(self):
-        self.state.write_done(100, False, "ModbusIOException", self.rec)
-        self.state.read_ok(100, self.rec)
+        self.state.write_done(100, 1, False, "ModbusIOException", self.rec)
+        self.state.read_ok(100, 1, self.rec)
         self.assertFalse(self.rec.of("write_confirmed"))
         self.assertFalse(self.rec.of("write_mismatch"))
         self.assertFalse(self.rec.of("write_result")[0]["ok"])
@@ -146,8 +147,8 @@ class KeyReaderTests(unittest.TestCase):
 
 
 class Reply:
-    def __init__(self, registers=None, error=False):
-        self.registers, self.error = registers, error
+    def __init__(self, registers=None, error=False, exception_code=None):
+        self.registers, self.error, self.exception_code = registers, error, exception_code
 
     def isError(self):
         return self.error
@@ -174,7 +175,7 @@ class FakeBase:
         unit = call[-1]
         if unit not in self.alive:
             if self.error_reply:
-                return Reply(error=True)
+                return Reply(error=True, exception_code=2)
             raise ModbusIOException("응답 없음")
         if call[0] == "write":
             self.word = call[2]
@@ -324,6 +325,51 @@ class FakeSyncClient(FakeBase):
         self.enter(call)
         time.sleep(self.delay)
         return self.answer(call)
+
+
+class FixTests(unittest.IsolatedAsyncioTestCase):
+    """최종 리뷰에서 나온 결함의 재현 테스트."""
+    def test_args_reject_bad_unit(self):
+        for unit in ("0", "248"):
+            with self.assertRaises(SystemExit):
+                parse_args(SERIAL + ["--unit", unit])
+
+    async def test_result_keeps_request_unit(self):
+        client = FakeAsyncClient(delay=0.3, alive=())
+        rec = Rec()
+        await plc_project.run(client, test_args(), rec,
+                              ScriptKeys([(0.1, "unit 2"), (0.35, "quit")]))
+        self.assertEqual(rec.of("observation_error")[0]["unit"], 1)
+
+    async def test_timeout_and_error_reply_differ(self):
+        rec = Rec()
+        await plc_project.run(FakeAsyncClient(alive=()), test_args(), rec,
+                              ScriptKeys([(0.05, "quit")]))
+        self.assertEqual(rec.of("observation_error")[0]["error"], "NoResponse")
+        rec = Rec()
+        await plc_project.run(FakeAsyncClient(alive=(), error_reply=True), test_args(), rec,
+                              ScriptKeys([(0.05, "quit")]))
+        self.assertEqual(rec.of("observation_error")[0]["error"], "ErrorReply(2)")
+
+    async def test_dead_poll_task_reconnects(self):
+        class Dead(FakeAsyncClient):
+            opens = 0
+
+            async def connect(self):
+                self.opens += 1
+                self.ctx.transport.poll_task = SimpleNamespace(done=lambda: False)
+                return await super().connect()
+
+            def close(self):
+                self.connected = False
+
+        client = Dead()
+        client.ctx = SimpleNamespace(transport=SimpleNamespace(
+            poll_task=SimpleNamespace(done=lambda: True)))
+        rec = Rec()
+        await plc_project.run(client, test_args(), rec, ScriptKeys([(0.25, "quit")]))
+        self.assertEqual(client.opens, 1)
+        self.assertTrue(rec.of("observation"))
 
 
 class SyncMonitorTests(unittest.TestCase):

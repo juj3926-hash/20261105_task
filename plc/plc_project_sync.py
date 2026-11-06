@@ -3,9 +3,9 @@ import sys
 import time
 
 from pymodbus.client import ModbusSerialClient
-from pymodbus.exceptions import ConnectionException, ModbusException, ModbusIOException
+from pymodbus.exceptions import ConnectionException, ModbusException
 
-from plc_common import (ADDRESS, HELP, EventLog, KeyReader, State, client_options, describe,
+from plc_common import (ADDRESS, HELP, EventLog, KeyReader, State, check_reply, client_options, describe,
                         open_log, parse_args)
 
 FAILURES = (ModbusException, OSError)
@@ -15,10 +15,7 @@ LOOP_WAIT = 0.05
 def exchange(client, request):
     if not client.connected and not client.connect():
         raise ConnectionException("연결 실패")
-    reply = request()
-    if reply.isError():
-        raise ModbusIOException("오류 응답")
-    return reply
+    return check_reply(request())
 
 
 def write_once(client, state, value, record):
@@ -27,9 +24,9 @@ def write_once(client, state, value, record):
     try:
         exchange(client, lambda: client.write_register(ADDRESS, value, device_id=unit))
     except FAILURES as error:
-        state.write_done(value, False, describe(error), record)
+        state.write_done(value, unit, False, describe(error), record)
     else:
-        state.write_done(value, True, None, record)
+        state.write_done(value, unit, True, None, record)
 
 
 def read_once(client, state, record):
@@ -39,9 +36,9 @@ def read_once(client, state, record):
         reply = exchange(
             client, lambda: client.read_holding_registers(ADDRESS, count=1, device_id=unit))
     except FAILURES as error:
-        state.read_failed(describe(error), record)
+        state.read_failed(describe(error), unit, record)
     else:
-        state.read_ok(reply.registers[0], record)
+        state.read_ok(reply.registers[0], unit, record)
 
 
 def run(client, args, record, keys):
